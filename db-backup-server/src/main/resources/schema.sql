@@ -1,0 +1,82 @@
+-- 数据库备份服务 初始化脚本
+CREATE DATABASE IF NOT EXISTS db_backup DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE db_backup;
+
+-- 数据源表
+CREATE TABLE IF NOT EXISTS t_data_source (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT '名称',
+    host VARCHAR(100) NOT NULL COMMENT '主机地址',
+    port INT DEFAULT 3306 COMMENT '端口',
+    username VARCHAR(100) NOT NULL COMMENT '用户名',
+    password VARCHAR(255) NOT NULL COMMENT '密码',
+    database_name VARCHAR(100) NOT NULL COMMENT '数据库名',
+    remark VARCHAR(255) COMMENT '备注',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据源配置表';
+
+-- 备份任务表
+CREATE TABLE IF NOT EXISTS t_backup_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT '任务名称',
+    data_source_id BIGINT NOT NULL COMMENT '数据源ID',
+    backup_type VARCHAR(20) NOT NULL COMMENT '备份类型 FULL/PARTIAL',
+    backup_content VARCHAR(20) DEFAULT 'STRUCTURE_DATA' COMMENT '备份内容 STRUCTURE_DATA/STRUCTURE',
+    table_list VARCHAR(500) COMMENT '备份的表列表，逗号分隔',
+    storage_type VARCHAR(20) NOT NULL COMMENT '存储类型 LOCAL/NFS',
+    storage_path VARCHAR(500) COMMENT '存储路径',
+    nfs_config_id BIGINT COMMENT 'NFS配置ID',
+    cron_expression VARCHAR(100) COMMENT 'Cron表达式',
+    enabled TINYINT(1) DEFAULT 1 COMMENT '是否启用',
+    retain_days INT DEFAULT 30 COMMENT '保留天数',
+    remark VARCHAR(255) COMMENT '备注',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='备份任务表';
+
+-- 备份历史表
+CREATE TABLE IF NOT EXISTS t_backup_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id BIGINT NOT NULL COMMENT '任务ID',
+    task_name VARCHAR(100) COMMENT '任务名称',
+    data_source_id BIGINT COMMENT '数据源ID',
+    backup_type VARCHAR(20) COMMENT '备份类型',
+    table_list VARCHAR(500) COMMENT '表列表',
+    file_path VARCHAR(500) COMMENT '文件路径',
+    file_size BIGINT COMMENT '文件大小',
+    status VARCHAR(20) COMMENT '状态 RUNNING/SUCCESS/FAILED',
+    start_time DATETIME COMMENT '开始时间',
+    end_time DATETIME COMMENT '结束时间',
+    error_msg TEXT COMMENT '错误信息',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='备份历史表';
+
+-- NFS配置表
+CREATE TABLE IF NOT EXISTS t_nfs_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT '名称',
+    server VARCHAR(100) NOT NULL COMMENT 'NFS服务器地址',
+    remote_path VARCHAR(255) NOT NULL COMMENT '远程路径',
+    local_mount_point VARCHAR(255) NOT NULL COMMENT '本地挂载点',
+    options VARCHAR(255) COMMENT '挂载选项',
+    mounted TINYINT(1) DEFAULT 0 COMMENT '是否已挂载',
+    remark VARCHAR(255) COMMENT '备注',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='NFS配置表';
+
+-- 邮件配置表
+CREATE TABLE IF NOT EXISTS t_mail_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    smtp_host VARCHAR(100) COMMENT 'SMTP服务器',
+    smtp_port INT DEFAULT 587 COMMENT 'SMTP端口',
+    username VARCHAR(100) COMMENT '邮箱账号',
+    password VARCHAR(255) COMMENT '邮箱密码',
+    enable_ssl TINYINT(1) DEFAULT 1 COMMENT '是否启用SSL',
+    from_address VARCHAR(100) COMMENT '发件人地址',
+    to_addresses VARCHAR(500) COMMENT '收件人地址，逗号分隔',
+    enabled TINYINT(1) DEFAULT 0 COMMENT '是否启用',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮件配置表';

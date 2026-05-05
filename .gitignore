@@ -1,0 +1,37 @@
+# ===== IDE =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# ===== Java / Maven =====
+target/
+*.class
+*.jar
+*.war
+*.log
+hs_err_pid*
+
+# ===== Node / Frontend =====
+db-backup-web/node_modules/
+db-backup-web/dist/
+db-backup-web/.env.local
+db-backup-web/.env.*.local
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== Docker =====
+backup-data/
+backup-temp/
+
+# ===== Misc =====
+*.bak
+*.tmp
+*.swp
+logs/

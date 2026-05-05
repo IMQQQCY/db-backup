@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db-backup-server:
+    build: ./db-backup-server
+    container_name: db-backup-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # 元数据库配置（备份服务自身使用的数据库）
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/db_backup?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      # 备份文件临时目录
+      - BACKUP_TEMP_DIR=/app/backup-temp
+      # 邮件配置（可选）
+      - MAIL_HOST=
+      - MAIL_PORT=587
+      - MAIL_USERNAME=
+      - MAIL_PASSWORD=
+    volumes:
+      - ./backup-data:/app/backup-temp
+      # 如需本地备份落盘到宿主机，可映射本地目录
+      # - /local/backup/path:/backup
+    privileged: true
+    networks:
+      - backup-network
+
+networks:
+  backup-network:
+    driver: bridge
