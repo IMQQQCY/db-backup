@@ -27,6 +27,17 @@ services:
     networks:
       - backup-network
 
+  db-backup-web:
+    build: ./db-backup-web
+    container_name: db-backup-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - db-backup-server
+    networks:
+      - backup-network
+
 networks:
   backup-network:
     driver: bridge
